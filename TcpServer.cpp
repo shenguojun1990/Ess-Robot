@@ -46,7 +46,7 @@ bool TcpServer::TcpServerListen(QString serPort)
     ret = tcpServer->listen(QHostAddress::Any,serPort.toInt());
     if(ret)
     {
-//        tcpServer->setMaxPendingConnections(100);//设置最大连接数量
+        //        tcpServer->setMaxPendingConnections(100);//设置最大连接数量
     }
 
     DC.tcp_listen_flag=ret;
@@ -87,20 +87,45 @@ void TcpServer::doProcessReadyRead()
 {
     client = (QTcpSocket *)this->sender();
     QString str;
+	RECV_DATA recv_data;
     while(!client->atEnd())//没有读到末尾一直读
     {
-         str.append(QString(client->readAll()));
-         qDebug()<<u8"机器人接收数据："<<str;
+        str.append(QString(client->readAll()));
+        qDebug()<<u8"机器人接收数据："<<str;
     }
 
     if(str.compare("inpos", Qt::CaseInsensitive)==0)
     {
         qDebug()<<u8"机器人到位";
-        emit robot_inpos();
+		recv_data = InPos;
     }
+
+    if(str.compare("complete", Qt::CaseInsensitive)==0)
+    {
+        qDebug()<<u8"所有pin脚测试完成";
+		recv_data = Complete;
+    }
+
+	if (str.compare("recv", Qt::CaseInsensitive) == 0)
+	{
+		qDebug() << u8"机器人收到信息";
+		recv_data = Recv;
+	}
+
+	emit robot_recv(recv_data);
 
 }
 void TcpServer::doProcessConnected()
 {
 
+}
+
+void TcpServer::sendData(QString data)
+{
+    qDebug()<<u8"机器人发送数据:"<<data;
+    for(int i=0;i<clients.length();i++)//遍历客户端
+    {
+        QString msg = data;
+        clients.at(i)->write(msg.toLatin1());
+    }
 }

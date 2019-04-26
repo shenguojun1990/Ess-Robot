@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>903</width>
-    <height>954</height>
+    <height>1000</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,7 +40,7 @@
       <x>0</x>
       <y>110</y>
       <width>861</width>
-      <height>800</height>
+      <height>831</height>
      </rect>
     </property>
     <property name="font">
@@ -58,17 +58,17 @@
         <x>20</x>
         <y>10</y>
         <width>441</width>
-        <height>671</height>
+        <height>351</height>
        </rect>
       </property>
       <property name="title">
-       <string>ESS-S3011静电枪参数设置</string>
+       <string>静电枪参数设置</string>
       </property>
       <widget class="QLabel" name="label_9">
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>230</y>
+         <y>140</y>
          <width>131</width>
          <height>41</height>
         </rect>
@@ -81,9 +81,9 @@
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>50</y>
+         <y>40</y>
          <width>131</width>
-         <height>41</height>
+         <height>31</height>
         </rect>
        </property>
        <property name="text">
@@ -94,9 +94,9 @@
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>140</y>
+         <y>90</y>
          <width>131</width>
-         <height>41</height>
+         <height>31</height>
         </rect>
        </property>
        <property name="text">
@@ -107,7 +107,7 @@
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>330</y>
+         <y>190</y>
          <width>131</width>
          <height>41</height>
         </rect>
@@ -120,7 +120,7 @@
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>420</y>
+         <y>240</y>
          <width>131</width>
          <height>41</height>
         </rect>
@@ -133,9 +133,9 @@
        <property name="geometry">
         <rect>
          <x>180</x>
-         <y>50</y>
-         <width>151</width>
-         <height>51</height>
+         <y>40</y>
+         <width>141</width>
+         <height>31</height>
         </rect>
        </property>
        <item>
@@ -153,9 +153,9 @@
        <property name="geometry">
         <rect>
          <x>180</x>
-         <y>140</y>
-         <width>151</width>
-         <height>51</height>
+         <y>90</y>
+         <width>141</width>
+         <height>31</height>
         </rect>
        </property>
        <item>
@@ -178,9 +178,9 @@
        <property name="geometry">
         <rect>
          <x>180</x>
-         <y>220</y>
-         <width>151</width>
-         <height>51</height>
+         <y>140</y>
+         <width>141</width>
+         <height>31</height>
         </rect>
        </property>
        <property name="text">
@@ -193,8 +193,8 @@
       <widget class="QLabel" name="label_14">
        <property name="geometry">
         <rect>
-         <x>360</x>
-         <y>230</y>
+         <x>330</x>
+         <y>140</y>
          <width>71</width>
          <height>41</height>
         </rect>
@@ -207,9 +207,9 @@
        <property name="geometry">
         <rect>
          <x>180</x>
-         <y>320</y>
-         <width>151</width>
-         <height>51</height>
+         <y>190</y>
+         <width>141</width>
+         <height>31</height>
         </rect>
        </property>
        <property name="text">
@@ -222,8 +222,8 @@
       <widget class="QLabel" name="label_15">
        <property name="geometry">
         <rect>
-         <x>370</x>
-         <y>330</y>
+         <x>330</x>
+         <y>190</y>
          <width>71</width>
          <height>41</height>
         </rect>
@@ -236,9 +236,9 @@
        <property name="geometry">
         <rect>
          <x>180</x>
-         <y>410</y>
-         <width>151</width>
-         <height>51</height>
+         <y>240</y>
+         <width>141</width>
+         <height>31</height>
         </rect>
        </property>
        <property name="text">
@@ -251,8 +251,8 @@
       <widget class="QLabel" name="label_23">
        <property name="geometry">
         <rect>
-         <x>370</x>
-         <y>420</y>
+         <x>330</x>
+         <y>240</y>
          <width>71</width>
          <height>41</height>
         </rect>
@@ -265,7 +265,7 @@
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>510</y>
+         <y>290</y>
          <width>151</width>
          <height>41</height>
         </rect>
@@ -277,8 +277,8 @@
       <widget class="QLabel" name="label_26">
        <property name="geometry">
         <rect>
-         <x>360</x>
-         <y>510</y>
+         <x>330</x>
+         <y>290</y>
          <width>71</width>
          <height>41</height>
         </rect>
@@ -290,10 +290,10 @@
       <widget class="QLabel" name="completed_label">
        <property name="geometry">
         <rect>
-         <x>190</x>
-         <y>510</y>
-         <width>151</width>
-         <height>41</height>
+         <x>180</x>
+         <y>300</y>
+         <width>141</width>
+         <height>21</height>
         </rect>
        </property>
        <property name="layoutDirection">
@@ -306,30 +306,12 @@
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QPushButton" name="ess_setting_pushButton">
-       <property name="geometry">
-        <rect>
-         <x>120</x>
-         <y>600</y>
-         <width>231</width>
-         <height>61</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>20</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>参数设置</string>
-       </property>
-      </widget>
      </widget>
      <widget class="QPushButton" name="start_pushButton">
       <property name="geometry">
        <rect>
         <x>80</x>
-        <y>700</y>
+        <y>750</y>
         <width>231</width>
         <height>81</height>
        </rect>
@@ -541,7 +523,7 @@ color: rgb(255, 0, 0);</string>
       <property name="geometry">
        <rect>
         <x>530</x>
-        <y>700</y>
+        <y>750</y>
         <width>231</width>
         <height>81</height>
        </rect>
@@ -549,6 +531,112 @@ color: rgb(255, 0, 0);</string>
       <property name="text">
        <string>停止</string>
       </property>
+     </widget>
+     <widget class="QPushButton" name="ess_setting_pushButton">
+      <property name="geometry">
+       <rect>
+        <x>70</x>
+        <y>570</y>
+        <width>231</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>20</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>参数设置</string>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_6">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>380</y>
+        <width>431</width>
+        <height>161</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>测试模式设置</string>
+      </property>
+      <widget class="QLabel" name="label_29">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>40</y>
+         <width>121</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>测试模式:</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="test_mode_comboBox">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>40</y>
+         <width>141</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>全部测试</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>单点测试</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QLabel" name="label_31">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>90</y>
+         <width>131</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>pin脚序号：</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_36">
+       <property name="geometry">
+        <rect>
+         <x>340</x>
+         <y>90</y>
+         <width>91</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="pin_index_lineEdit">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>90</y>
+         <width>141</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>1</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
      </widget>
     </widget>
     <widget class="QWidget" name="page_2">

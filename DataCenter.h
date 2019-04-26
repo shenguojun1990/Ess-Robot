@@ -45,6 +45,19 @@ enum TRIGGER
     External = 2,//外部触发模式
 };
 
+enum TEST_MODE//测试模式
+{
+    ALL = 0,//所有点
+    One_Step = 1,//单点
+};
+
+enum RECV_DATA//测试模式
+{
+	Recv = 0,//机器人收到信息
+	InPos = 1,//机器人到位
+	Complete = 2,//机器人完成所有测试点
+};
+
 
 class DataCenter: public QObject
 {
@@ -72,6 +85,10 @@ public:
     QStringList server_ip_list;//本机ip列表
 
     QString first_reg_date;//第一次注册时间
+
+    int pin_index;//测试第几个pin脚
+
+    TEST_MODE test_mode;//测试模式
 
 };
 extern DataCenter DC;

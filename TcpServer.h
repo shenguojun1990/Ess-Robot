@@ -17,6 +17,8 @@ public:
 
     void TcpServerClose();
 
+    void sendData(QString data);
+
 private:
     QStringList getHostIpAddrs();//获取本机IP
 
@@ -37,7 +39,7 @@ public slots:
 signals:
     void tcp_server_close();
 
-    void robot_inpos();
+    void robot_recv(RECV_DATA	data);
 
 };
 

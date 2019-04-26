@@ -9,4 +9,6 @@ DataCenter::DataCenter(QObject *parent) : QObject(parent)
     tcp_server_flag=false;
 
     tcp_listen_flag=false;
+
+    pin_index=0;
 }

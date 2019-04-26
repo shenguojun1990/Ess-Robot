@@ -31,9 +31,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_essCom, SIGNAL(ess_setting_unfinished()), this, SLOT(ess_setting_unfinished_slots()));
     connect(m_essCom, SIGNAL(completed_count()), this, SLOT(completed_count_slots()));
     connect(m_essCom, SIGNAL(ess_finished()), this, SLOT(ess_finished_slots()));
+	connect(m_essCom, SIGNAL(to_next()), this, SLOT(to_next_slots()));
 
     connect(m_TcpServer, SIGNAL(tcp_server_close()), this, SLOT(tcp_server_close_slots()));
-    connect(m_TcpServer, SIGNAL(robot_inpos()), this, SLOT(robot_inpos_slots()));
+    connect(m_TcpServer, SIGNAL(robot_recv(RECV_DATA)), this, SLOT(robot_recv_slots(RECV_DATA)));
+
+	connect(this, SIGNAL(ess_finished()), this, SLOT(ess_finished_slots()));
+	connect(this, SIGNAL(ess_setting_unfinished()), this, SLOT(ess_setting_unfinished_slots()));
 
     initUI();
 
@@ -56,7 +60,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     if(rb==QMessageBox::Yes)
     {
         //静电枪停下
-        m_essCom->sendData(AB);
+        m_essCom->sendData(AD);
         m_essCom->Com_Close();
 
         m_TcpServer->TcpServerClose();
@@ -117,11 +121,20 @@ void MainWindow::update_UI()
         ui->tcp_server_listen_status_label_2->setStyleSheet("background-color: rgb(0, 0, 0);\ncolor: rgb(255, 0, 0);");
         ui->tcp_server_listen_status_label_2->setText(tr(u8"未监听"));
     }
+
+    if(ui->test_mode_comboBox->currentText()==u8"全部测试")
+    {
+        ui->pin_index_lineEdit->setEnabled(false);
+    }
+    else
+    {
+        ui->pin_index_lineEdit->setEnabled(true);
+    }
 }
 
 void MainWindow::initUI()
 {
-//    ui->openCom_pushButton->setStyleSheet("QPushButton{background-color:grey;}");
+    //    ui->openCom_pushButton->setStyleSheet("QPushButton{background-color:grey;}");
 
     get_limit_date();
 }
@@ -143,14 +156,14 @@ void MainWindow::get_limit_date()
     }
     else
     {
-//        qDebug() << DC.first_reg_date;
+        //        qDebug() << DC.first_reg_date;
 
         QString starttime = DC.first_reg_date;
 
         QDateTime start = QDateTime::fromString(starttime, "yyyy-M-dd");
         QDateTime end = QDateTime::fromString(day, "yyyy-MM-dd");
 
-//        qDebug() << end.toString("yyyy-MM-dd");
+        //        qDebug() << end.toString("yyyy-MM-dd");
 
         ui->limit_day_label->setText(end.toString("yyyy-MM-dd"));
     }
@@ -198,6 +211,7 @@ void MainWindow::ess_setting_unfinished_slots()
 {
     ui->ess_setting_finished_label->setText(tr(u8"未写入"));
     ui->ess_setting_finished_label->setStyleSheet("background-color: rgb(0, 0, 0);\ncolor: rgb(255, 0, 0);");
+	set_ui(true);
 }
 
 void MainWindow::completed_count_slots()
@@ -207,10 +221,28 @@ void MainWindow::completed_count_slots()
 
 void MainWindow::ess_finished_slots()
 {
+	if (DC.test_mode==One_Step) 
+	{
+		int pin_index = DC.pin_index+1;
+		ui->pin_index_lineEdit->setText(QString::number(pin_index));
+	}
     QMessageBox::information(this, u8"提醒", u8"本次测试完成\n"
                                            "请重新设置静电枪参数",
                              QMessageBox::Yes, QMessageBox::Yes);
     return;
+}
+
+void MainWindow::to_next_slots()
+{
+	DC.pin_index++;
+
+	ui->pin_index_lineEdit->setText(QString::number(DC.pin_index));
+
+	QString msg = "Go,";
+	msg.append(QString::number(DC.pin_index));
+	m_TcpServer->sendData(msg);
+
+	return;
 }
 
 void MainWindow::tcp_server_close_slots()
@@ -218,42 +250,32 @@ void MainWindow::tcp_server_close_slots()
     ui->tcpServer_listen_pushButton->setText(tr(u8"监听"));
 }
 
-void MainWindow::robot_inpos_slots()
+void MainWindow::robot_recv_slots(RECV_DATA recv_data)
 {
-    on_start_pushButton_clicked();
-}
+    //on_start_pushButton_clicked();
+	switch (recv_data)
+	{
+	case Recv:
+		ui->statusBar->showMessage(u8"机器人运动中，请注意安全！！！");
+		break;
+	case InPos:
+		ui->statusBar->showMessage(u8"机器人到位，静电枪开始工作，请注意安全！！！");
+		m_essCom->sendData(AA);
+		break;
+	case Complete:
+		ui->statusBar->showMessage(u8"加工完成，请重设参数并开始");
+		//on_stop_pushButton_clicked();
 
-void MainWindow::on_voltage_lineEdit_editingFinished()
-{
-    //    float vol=ui->voltage_lineEdit->text().toFloat();
-    //    qDebug()<<"vol:"<<vol;
+		if (DC.test_mode == ALL)
+		{
+			emit ess_setting_unfinished();
+			emit ess_finished();
+		}
 
-    //    DC.voltage=qAbs(vol);
-    //    if(vol>=0)//电压值为正
-    //    {
-    //        DC.prolarity=Positive;
-    //    }
-    //    else//电压值为负
-    //    {
-    //        DC.prolarity=Negative;
-    //    }
-    //    m_essCom->sendData(PL);
-}
-
-
-void MainWindow::on_Discharge_comboBox_currentIndexChanged(int index)
-{
-    (void) index;
-    //    QString mode=ui->Discharge_comboBox->currentText();
-    //    if(mode==tr("直接接触"))
-    //    {
-    //        DC.discharge=Contect;
-    //    }
-    //    else
-    //    {
-    //        DC.discharge=Air;
-    //    }
-    //    m_essCom->sendData(PH);
+		break;
+	default:
+		break;
+	}
 }
 
 void MainWindow::on_ess_setting_pushButton_clicked()
@@ -317,6 +339,16 @@ void MainWindow::on_ess_setting_pushButton_clicked()
     }
     DC.repeat_count=repeat_count;
 
+    //第几个pin脚
+    int pin_index=ui->pin_index_lineEdit->text().toInt();
+    if(pin_index<=0)
+    {
+        QMessageBox::information(this, u8"提醒", u8"pin脚序号非法", QMessageBox::Yes, QMessageBox::Yes);
+        ui->pin_index_lineEdit->setFocus();
+        return;
+    }
+    DC.pin_index=pin_index;
+
     m_essCom->sendData(PH);
 }
 
@@ -339,15 +371,15 @@ void MainWindow::on_start_pushButton_clicked()
 
     if(DC.trigger==Controller)
     {
-        discharge_str=tr(u8"主机触发");
+		trigger_str =tr(u8"主机触发");
     }
     else if(DC.trigger==Gun)
     {
-        discharge_str=tr(u8"枪触发");
+		trigger_str =tr(u8"枪触发");
     }
     else
     {
-        discharge_str=tr(u8"外部触发");
+		trigger_str =tr(u8"外部触发");
     }
     SuperDog sd;
 
@@ -374,9 +406,9 @@ void MainWindow::on_start_pushButton_clicked()
         QDateTime curr_date = QDateTime::fromString(curr_date_str, "yyyy-M-dd");
         QDateTime limit_date = QDateTime::fromString(limit_date_str, "yyyy-MM-dd");
 
-//        qDebug()<<curr_date;
-//        qDebug()<<limit_date;
-//        qDebug()<< curr_date.toTime_t() - limit_date.toTime_t();
+        //        qDebug()<<curr_date;
+        //        qDebug()<<limit_date;
+        //        qDebug()<< curr_date.toTime_t() - limit_date.toTime_t();
 
         if (curr_date.toTime_t() - limit_date.toTime_t() < 0)
         {
@@ -423,6 +455,31 @@ void MainWindow::on_start_pushButton_clicked()
     }
 
 
+
+    //第几个pin脚开始
+    int pin_index=0;
+    if(ui->test_mode_comboBox->currentText()==u8"全部测试")
+    {
+		DC.test_mode = ALL;
+        pin_index=1;
+    }
+    else
+    {
+		DC.test_mode = One_Step;
+        pin_index=ui->pin_index_lineEdit->text().toInt();
+    }
+
+    if(pin_index<=0)
+    {
+        QMessageBox::information(this, u8"提醒", u8"起始pin脚序号非法", QMessageBox::Yes, QMessageBox::Yes);
+        ui->pin_index_lineEdit->setFocus();
+        return;
+    }
+    DC.pin_index=pin_index;
+
+
+
+
     QMessageBox::StandardButton rb =QMessageBox::information(this, u8"提醒", QString(u8"请确认：\n"
                                                                                    "接触方式：%1\n"
                                                                                    "触发方式：%2\n"
@@ -442,13 +499,30 @@ void MainWindow::on_start_pushButton_clicked()
     }
     else
     {
-        m_essCom->sendData(AA);
+//        m_essCom->sendData(AA);
+		set_ui(false);
+        QString msg="Go,";
+        msg.append(QString::number(DC.pin_index));
+        m_TcpServer->sendData(msg);
     }
 
 }
 
+void MainWindow::set_ui(bool status) 
+{
+	ui->Discharge_comboBox->setEnabled(status);
+	ui->Trigger_comboBox->setEnabled(status);
+	ui->voltage_lineEdit->setEnabled(status);
+	ui->interval_lineEdit->setEnabled(status);
+	ui->repeat_count_lineEdit->setEnabled(status);
+	ui->test_mode_comboBox->setEnabled(status);
+	ui->pin_index_lineEdit->setEnabled(status);
+}
+
+
 void MainWindow::on_stop_pushButton_clicked()
 {
+	set_ui(true);
     m_essCom->sendData(AD);
 }
 
@@ -481,7 +555,7 @@ void MainWindow::on_tcpServer_listen_pushButton_clicked()
 
 void MainWindow::on_setting_action_triggered()
 {
-   ui->stackedWidget->setCurrentIndex(1);
+    ui->stackedWidget->setCurrentIndex(1);
 }
 
 void MainWindow::on_exit_action_triggered()
@@ -499,7 +573,7 @@ void MainWindow::on_openCom_pushButton_2_clicked()
     //    qDebug()<<ui->openCom_pushButton->text();
     if(ui->openCom_pushButton_2->text()== tr(u8"打开"))
     {
-//        qDebug()<<ui->comlist_comboBox_2->currentText();
+        //        qDebug()<<ui->comlist_comboBox_2->currentText();
         QString portName= ui->comlist_comboBox_2->currentText();//端口号
         m_essCom->Com_Open(portName);
     }
@@ -513,16 +587,16 @@ void MainWindow::on_reg_action_triggered()
 {
     bool isOK;
     QString reg_str = QInputDialog::getText(this, u8"注册码",
-                                                       u8"请输入注册码：",
-                                                       QLineEdit::Normal,
-                                                       "",
-                                                       &isOK);
+                                            u8"请输入注册码：",
+                                            QLineEdit::Normal,
+                                            "",
+                                            &isOK);
     if(isOK)
     {
         SuperDog sd;
 
         QString limit_str=sd.Decrypt(reg_str);
-//        qDebug()<<limit_str;
+        //        qDebug()<<limit_str;
 
 
         QString mac="";
@@ -543,7 +617,7 @@ void MainWindow::on_reg_action_triggered()
 
         mac.replace("-",":");
 
-//        qDebug()<<"on_reg_action_triggered:"<<mac<<day;
+        //        qDebug()<<"on_reg_action_triggered:"<<mac<<day;
 
         QStringList mac_list=sd.gethostMac();
 
@@ -567,8 +641,21 @@ void MainWindow::on_reg_action_triggered()
         else
         {
             QMessageBox::information(this, u8"提醒", QString(u8"注册码：%1不合法\n"
-                                                   "请联系厂商").arg(reg_str), QMessageBox::Yes, QMessageBox::Yes);
+                                                           "请联系厂商").arg(reg_str), QMessageBox::Yes, QMessageBox::Yes);
             return;
         }
+    }
+}
+
+void MainWindow::on_comboBox_activated(const QString &arg1)
+{
+    qDebug()<<arg1;
+    if(arg1==u8"全部测试")
+    {
+        ui->pin_index_lineEdit->setEnabled(false);
+    }
+    else
+    {
+        ui->pin_index_lineEdit->setEnabled(true);
     }
 }

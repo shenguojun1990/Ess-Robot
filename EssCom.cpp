@@ -155,11 +155,19 @@ void EssCom::receiveInfo()
         }
         DC.completed_count=a;
         emit completed_count();
-        if(a==0)
+        if(a==DC.repeat_count)
         {
             sendData(AD);
-            emit ess_finished();
-            emit ess_setting_unfinished();
+			if (DC.test_mode==One_Step) 
+			{
+				//emit ess_finished();
+				//emit ess_setting_unfinished();
+			}
+			else if (DC.test_mode == ALL)
+			{
+				emit to_next();
+			}
+            
         }
         else
         {
@@ -437,7 +445,12 @@ void EssCom::sendData(ESS_CMD ess_cmd)
         buf[3]=0x03;
         buf[4]=Fun_Bcc_Create(buf,len-1);
         serial->write(buf,len);
-        emit ess_setting_unfinished();
+		if (DC.test_mode==One_Step) 
+		{
+			emit ess_setting_unfinished();
+			emit ess_finished();
+		}
+        
     }
         break;
     case AC://trigger设定

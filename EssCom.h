@@ -35,9 +35,11 @@ signals:
     void ess_setting_finished();//UI静电枪参数已写入
     void ess_setting_unfinished();//UI静电枪参数未写入
 
-    void completed_count();
+    void completed_count();//回传静电枪测试完成次数
 
     void ess_finished();//测试完成
+
+	void to_next();//全部测试模式下，去下一个pin脚
 
 public slots:
     void receiveInfo();

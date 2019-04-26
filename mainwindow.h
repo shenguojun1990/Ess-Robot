@@ -19,6 +19,7 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private:
     void get_com_list();
 
     void get_server_list();
@@ -28,6 +29,8 @@ public:
     void get_limit_date();//获取到期日期
 
     void closeEvent(QCloseEvent *event);
+
+	void set_ui(bool status);
 
 private slots:
     void com_opend_slots();
@@ -39,13 +42,11 @@ private slots:
 
     void ess_finished_slots();
 
+	void to_next_slots();
+
     void tcp_server_close_slots();
 
-    void robot_inpos_slots();
-
-    void on_voltage_lineEdit_editingFinished();
-
-    void on_Discharge_comboBox_currentIndexChanged(int index);
+    void robot_recv_slots(RECV_DATA);
 
     void on_ess_setting_pushButton_clicked();
 
@@ -65,6 +66,8 @@ private slots:
 
     void on_reg_action_triggered();
 
+    void on_comboBox_activated(const QString &arg1);
+
 public slots:
     void update_UI();
 
@@ -74,6 +77,10 @@ private:
     TcpServer *m_TcpServer;
 
     QTimer *timer;
+
+signals:
+	void ess_setting_unfinished();
+	void ess_finished();
 };
 
 #endif // MAINWINDOW_H
