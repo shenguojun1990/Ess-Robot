@@ -31,13 +31,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_essCom, SIGNAL(ess_setting_unfinished()), this, SLOT(ess_setting_unfinished_slots()));
     connect(m_essCom, SIGNAL(completed_count()), this, SLOT(completed_count_slots()));
     connect(m_essCom, SIGNAL(ess_finished()), this, SLOT(ess_finished_slots()));
-	connect(m_essCom, SIGNAL(to_next()), this, SLOT(to_next_slots()));
+    connect(m_essCom, SIGNAL(to_next()), this, SLOT(to_next_slots()));
 
     connect(m_TcpServer, SIGNAL(tcp_server_close()), this, SLOT(tcp_server_close_slots()));
     connect(m_TcpServer, SIGNAL(robot_recv(RECV_DATA)), this, SLOT(robot_recv_slots(RECV_DATA)));
 
-	connect(this, SIGNAL(ess_finished()), this, SLOT(ess_finished_slots()));
-	connect(this, SIGNAL(ess_setting_unfinished()), this, SLOT(ess_setting_unfinished_slots()));
+    connect(this, SIGNAL(ess_finished()), this, SLOT(ess_finished_slots()));
+    connect(this, SIGNAL(ess_setting_unfinished()), this, SLOT(ess_setting_unfinished_slots()));
 
     initUI();
 
@@ -211,7 +211,7 @@ void MainWindow::ess_setting_unfinished_slots()
 {
     ui->ess_setting_finished_label->setText(tr(u8"未写入"));
     ui->ess_setting_finished_label->setStyleSheet("background-color: rgb(0, 0, 0);\ncolor: rgb(255, 0, 0);");
-	set_ui(true);
+    set_ui(true);
 }
 
 void MainWindow::completed_count_slots()
@@ -221,28 +221,30 @@ void MainWindow::completed_count_slots()
 
 void MainWindow::ess_finished_slots()
 {
-	if (DC.test_mode==One_Step) 
-	{
-		int pin_index = DC.pin_index+1;
-		ui->pin_index_lineEdit->setText(QString::number(pin_index));
-	}
+    ui->statusBar->showMessage(u8"本次测试完成,请重新设置参数");
+
+    if (DC.test_mode==One_Step)
+    {
+        int pin_index = DC.pin_index+1;
+        ui->pin_index_lineEdit->setText(QString::number(pin_index));
+    }
     QMessageBox::information(this, u8"提醒", u8"本次测试完成\n"
-                                           "请重新设置静电枪参数",
+                                           "请重新设置参数",
                              QMessageBox::Yes, QMessageBox::Yes);
     return;
 }
 
 void MainWindow::to_next_slots()
 {
-	DC.pin_index++;
+    DC.pin_index++;
 
-	ui->pin_index_lineEdit->setText(QString::number(DC.pin_index));
+    ui->pin_index_lineEdit->setText(QString::number(DC.pin_index));
 
-	QString msg = "Go,";
-	msg.append(QString::number(DC.pin_index));
-	m_TcpServer->sendData(msg);
+    QString msg = "Go,";
+    msg.append(QString::number(DC.pin_index));
+    m_TcpServer->sendData(msg);
 
-	return;
+    return;
 }
 
 void MainWindow::tcp_server_close_slots()
@@ -253,29 +255,28 @@ void MainWindow::tcp_server_close_slots()
 void MainWindow::robot_recv_slots(RECV_DATA recv_data)
 {
     //on_start_pushButton_clicked();
-	switch (recv_data)
-	{
-	case Recv:
-		ui->statusBar->showMessage(u8"机器人运动中，请注意安全！！！");
-		break;
-	case InPos:
-		ui->statusBar->showMessage(u8"机器人到位，静电枪开始工作，请注意安全！！！");
-		m_essCom->sendData(AA);
-		break;
-	case Complete:
-		ui->statusBar->showMessage(u8"加工完成，请重设参数并开始");
-		//on_stop_pushButton_clicked();
+    switch (recv_data)
+    {
+    case Recv:
+        ui->statusBar->showMessage(u8"机器人运动中，请注意安全！！！");
+        break;
+    case InPos:
+        ui->statusBar->showMessage(u8"机器人到位，静电枪开始工作，请注意安全！！！");
+        m_essCom->sendData(AA);
+        break;
+    case Complete:
+        ui->statusBar->showMessage(u8"机器人到位，静电枪开始工作，请注意安全！！！");
+        //on_stop_pushButton_clicked();
 
-		if (DC.test_mode == ALL)
-		{
-			emit ess_setting_unfinished();
-			emit ess_finished();
-		}
+        if (DC.test_mode == ALL)
+        {
+            DC.loop_finished_flag=true;
+        }
 
-		break;
-	default:
-		break;
-	}
+        break;
+    default:
+        break;
+    }
 }
 
 void MainWindow::on_ess_setting_pushButton_clicked()
@@ -371,15 +372,15 @@ void MainWindow::on_start_pushButton_clicked()
 
     if(DC.trigger==Controller)
     {
-		trigger_str =tr(u8"主机触发");
+        trigger_str =tr(u8"主机触发");
     }
     else if(DC.trigger==Gun)
     {
-		trigger_str =tr(u8"枪触发");
+        trigger_str =tr(u8"枪触发");
     }
     else
     {
-		trigger_str =tr(u8"外部触发");
+        trigger_str =tr(u8"外部触发");
     }
     SuperDog sd;
 
@@ -460,12 +461,12 @@ void MainWindow::on_start_pushButton_clicked()
     int pin_index=0;
     if(ui->test_mode_comboBox->currentText()==u8"全部测试")
     {
-		DC.test_mode = ALL;
+        DC.test_mode = ALL;
         pin_index=1;
     }
     else
     {
-		DC.test_mode = One_Step;
+        DC.test_mode = One_Step;
         pin_index=ui->pin_index_lineEdit->text().toInt();
     }
 
@@ -500,7 +501,13 @@ void MainWindow::on_start_pushButton_clicked()
     else
     {
 //        m_essCom->sendData(AA);
-		set_ui(false);
+        set_ui(false);
+
+        if (DC.test_mode == ALL)
+        {
+            DC.loop_finished_flag=false;
+        }
+
         QString msg="Go,";
         msg.append(QString::number(DC.pin_index));
         m_TcpServer->sendData(msg);
@@ -508,21 +515,21 @@ void MainWindow::on_start_pushButton_clicked()
 
 }
 
-void MainWindow::set_ui(bool status) 
+void MainWindow::set_ui(bool status)
 {
-	ui->Discharge_comboBox->setEnabled(status);
-	ui->Trigger_comboBox->setEnabled(status);
-	ui->voltage_lineEdit->setEnabled(status);
-	ui->interval_lineEdit->setEnabled(status);
-	ui->repeat_count_lineEdit->setEnabled(status);
-	ui->test_mode_comboBox->setEnabled(status);
-	ui->pin_index_lineEdit->setEnabled(status);
+    ui->Discharge_comboBox->setEnabled(status);
+    ui->Trigger_comboBox->setEnabled(status);
+    ui->voltage_lineEdit->setEnabled(status);
+    ui->interval_lineEdit->setEnabled(status);
+    ui->repeat_count_lineEdit->setEnabled(status);
+    ui->test_mode_comboBox->setEnabled(status);
+    ui->pin_index_lineEdit->setEnabled(status);
 }
 
 
 void MainWindow::on_stop_pushButton_clicked()
 {
-	set_ui(true);
+    set_ui(true);
     m_essCom->sendData(AD);
 }
 

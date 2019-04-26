@@ -53,9 +53,9 @@ enum TEST_MODE//测试模式
 
 enum RECV_DATA//测试模式
 {
-	Recv = 0,//机器人收到信息
-	InPos = 1,//机器人到位
-	Complete = 2,//机器人完成所有测试点
+    Recv = 0,//机器人收到信息
+    InPos = 1,//机器人到位
+    Complete = 2,//机器人完成所有测试点
 };
 
 
@@ -89,6 +89,8 @@ public:
     int pin_index;//测试第几个pin脚
 
     TEST_MODE test_mode;//测试模式
+
+    bool loop_finished_flag;//全部测试时，所有点都完成
 
 };
 extern DataCenter DC;
