@@ -32,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_essCom, SIGNAL(completed_count()), this, SLOT(completed_count_slots()));
     connect(m_essCom, SIGNAL(ess_finished()), this, SLOT(ess_finished_slots()));
     connect(m_essCom, SIGNAL(to_next()), this, SLOT(to_next_slots()));
+    connect(m_essCom, SIGNAL(get_finished_count_start()), this, SLOT(get_finished_count_start_slots()));
+    connect(m_essCom, SIGNAL(get_finished_count_stop()), this, SLOT(get_finished_count_stop_slots()));
 
     connect(m_TcpServer, SIGNAL(tcp_server_close()), this, SLOT(tcp_server_close_slots()));
     connect(m_TcpServer, SIGNAL(robot_recv(RECV_DATA)), this, SLOT(robot_recv_slots(RECV_DATA)));
@@ -45,6 +47,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer, SIGNAL(timeout()), this, SLOT(update_UI()));
     timer->start(100);
 
+    get_finished_count_timer = new QTimer(this);
+    connect(get_finished_count_timer, SIGNAL(timeout()), this, SLOT(update_finished_count()));
+
     on_tcpServer_listen_pushButton_clicked();
     on_openCom_pushButton_2_clicked();
 }
@@ -56,7 +61,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    QMessageBox::StandardButton rb =QMessageBox::question(this, u8"提醒", QString(u8"是否关闭？"), QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+    QMessageBox::StandardButton rb =QMessageBox::question(this, u8"提醒", QString(u8"<p><font size='15'>是否关闭？</font></p>"), QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
     if(rb==QMessageBox::Yes)
     {
         //静电枪停下
@@ -71,6 +76,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
         event->ignore();
     }
 }
+
+void MainWindow::update_finished_count()
+{
+    m_essCom->sendData(QF);
+}
+
 
 void MainWindow::update_UI()
 {
@@ -216,6 +227,10 @@ void MainWindow::ess_setting_unfinished_slots()
 
 void MainWindow::completed_count_slots()
 {
+	if (DC.completed_count==0)
+	{
+		return;
+	}
     ui->completed_label->setText(QString::number(DC.completed_count));
 }
 
@@ -228,8 +243,14 @@ void MainWindow::ess_finished_slots()
         int pin_index = DC.pin_index+1;
         ui->pin_index_lineEdit->setText(QString::number(pin_index));
     }
-    QMessageBox::information(this, u8"提醒", u8"本次测试完成\n"
-                                           "请重新设置参数",
+
+	if (DC.test_mode == ALL)
+	{
+		ui->pin_index_lineEdit->setText("1");
+	}
+
+    QMessageBox::information(this, u8"提醒", u8"<p><font size='15'>本次测试完成</font></p>"
+                                           "<p><font size='15'>请重新设置参数</font></p>",
                              QMessageBox::Yes, QMessageBox::Yes);
     return;
 }
@@ -267,6 +288,7 @@ void MainWindow::robot_recv_slots(RECV_DATA recv_data)
     case Complete:
         ui->statusBar->showMessage(u8"机器人到位，静电枪开始工作，请注意安全！！！");
         //on_stop_pushButton_clicked();
+		m_essCom->sendData(AA);
 
         if (DC.test_mode == ALL)
         {
@@ -274,9 +296,17 @@ void MainWindow::robot_recv_slots(RECV_DATA recv_data)
         }
 
         break;
-    default:
-        break;
     }
+}
+
+void MainWindow::get_finished_count_start_slots()
+{
+    get_finished_count_timer->start(100);
+}
+
+void MainWindow::get_finished_count_stop_slots()
+{
+    get_finished_count_timer->stop();
 }
 
 void MainWindow::on_ess_setting_pushButton_clicked()
@@ -310,6 +340,12 @@ void MainWindow::on_ess_setting_pushButton_clicked()
     //电压
     float vol=ui->voltage_lineEdit->text().toFloat();
     //    qDebug()<<"vol:"<<vol;
+	if (vol == 0)
+	{
+		QMessageBox::information(this, u8"提醒", u8"<p><font size='15'>电压非法</font></p>", QMessageBox::Yes, QMessageBox::Yes);
+		ui->interval_lineEdit->setFocus();
+		return;
+	}
     DC.voltage=qAbs(vol);//电压值
     if(vol>=0)//电压值为正
     {
@@ -324,7 +360,7 @@ void MainWindow::on_ess_setting_pushButton_clicked()
     int interval=ui->interval_lineEdit->text().toInt();
     if(interval<=0)
     {
-        QMessageBox::information(this, u8"提醒", u8"间隔时间非法", QMessageBox::Yes, QMessageBox::Yes);
+        QMessageBox::information(this, u8"提醒", u8"<p><font size='15'>间隔时间非法</font></p>", QMessageBox::Yes, QMessageBox::Yes);
         ui->interval_lineEdit->setFocus();
         return;
     }
@@ -334,7 +370,7 @@ void MainWindow::on_ess_setting_pushButton_clicked()
     int repeat_count=ui->repeat_count_lineEdit->text().toInt();
     if(repeat_count<=0)
     {
-        QMessageBox::information(this, u8"提醒", u8"间隔时间非法", QMessageBox::Yes, QMessageBox::Yes);
+        QMessageBox::information(this, u8"提醒", u8"<p><font size='15'>重复次数非法</font></p>", QMessageBox::Yes, QMessageBox::Yes);
         ui->repeat_count_lineEdit->setFocus();
         return;
     }
@@ -344,7 +380,7 @@ void MainWindow::on_ess_setting_pushButton_clicked()
     int pin_index=ui->pin_index_lineEdit->text().toInt();
     if(pin_index<=0)
     {
-        QMessageBox::information(this, u8"提醒", u8"pin脚序号非法", QMessageBox::Yes, QMessageBox::Yes);
+        QMessageBox::information(this, u8"提醒", u8"<p><font size='15'>pin脚序号非法</font></p>", QMessageBox::Yes, QMessageBox::Yes);
         ui->pin_index_lineEdit->setFocus();
         return;
     }
@@ -388,7 +424,7 @@ void MainWindow::on_start_pushButton_clicked()
     if(!sd.read_dog())
     {
         qDebug()<<u8"软件狗未识别";
-        QMessageBox::information(nullptr,u8"提醒",u8"未检测到软件狗，请联系厂商",QMessageBox::Ok,QMessageBox::Ok);
+        QMessageBox::information(nullptr,u8"提醒",u8"<p><font size='15'>未检测到软件狗，请联系厂商</font></p>",QMessageBox::Ok,QMessageBox::Ok);
         return;
     }
 
@@ -399,7 +435,7 @@ void MainWindow::on_start_pushButton_clicked()
     if (limit_date_str==tr(u8"未注册"))
     {
         qDebug()<<u8"未注册";
-        QMessageBox::information(this, u8"提醒", u8"未注册，请联系厂商", QMessageBox::Yes, QMessageBox::Yes);
+        QMessageBox::information(this, u8"提醒", u8"<p><font size='15'>未注册，请联系厂商</font></p>", QMessageBox::Yes, QMessageBox::Yes);
         return;
     }
     else if(limit_date_str != tr(u8"∞"))
@@ -414,7 +450,7 @@ void MainWindow::on_start_pushButton_clicked()
         if (curr_date.toTime_t() - limit_date.toTime_t() < 0)
         {
             qDebug()<<u8"使用期限已到";
-            QMessageBox::information(this, u8"提醒", u8"使用期限已到，请联系厂商", QMessageBox::Yes, QMessageBox::Yes);
+            QMessageBox::information(this, u8"提醒", u8"<p><font size='15'>使用期限已到，请联系厂商</font></p>", QMessageBox::Yes, QMessageBox::Yes);
             return;
         }
     }
@@ -423,8 +459,8 @@ void MainWindow::on_start_pushButton_clicked()
     if(ui->com_open_status_label->text()!=tr(u8"已打开"))
     {
         qDebug()<<u8"PC串口打开失败";
-        QMessageBox::information(this, u8"提醒", u8"PC串口打开失败\n"
-                                               "请手动打开", QMessageBox::Yes, QMessageBox::Yes);
+        QMessageBox::information(this, u8"提醒", u8"<p><font size='15'>PC串口打开失败</font></p>"
+                                               "<p><font size='15'>请手动打开</font></p>", QMessageBox::Yes, QMessageBox::Yes);
         ui->stackedWidget->setCurrentIndex(1);
         return;
     }
@@ -433,8 +469,8 @@ void MainWindow::on_start_pushButton_clicked()
     if(ui->tcp_server_listen_status_label->text()!=tr(u8"已监听"))
     {
         qDebug()<<u8"TCP服务端监听打开失败";
-        QMessageBox::information(this, u8"提醒", u8"TCP服务端监听打开失败\n"
-                                               "请手动打开", QMessageBox::Yes, QMessageBox::Yes);
+        QMessageBox::information(this, u8"提醒", u8"<p><font size='15'>TCP服务端监听打开失败</font></p>"
+                                               "<font size='15'>请手动打开</font>", QMessageBox::Yes, QMessageBox::Yes);
         ui->stackedWidget->setCurrentIndex(1);
         return;
     }
@@ -443,7 +479,7 @@ void MainWindow::on_start_pushButton_clicked()
     if(ui->ess_setting_finished_label->text()!=tr(u8"已写入"))
     {
         qDebug()<<u8"静电枪参数尚未写入";
-        QMessageBox::information(this, u8"提醒", u8"静电枪参数尚未写入", QMessageBox::Yes, QMessageBox::Yes);
+        QMessageBox::information(this, u8"提醒", u8"<font size='15'>静电枪参数尚未写入</font>", QMessageBox::Yes, QMessageBox::Yes);
         return;
     }
 
@@ -451,7 +487,7 @@ void MainWindow::on_start_pushButton_clicked()
     if(ui->tcp_server_connect_status_label->text()!=tr(u8"已连接"))
     {
         qDebug()<<u8"机器人尚未接入";
-        QMessageBox::information(this, u8"提醒", u8"机器人尚未接入", QMessageBox::Yes, QMessageBox::Yes);
+        QMessageBox::information(this, u8"提醒", u8"<font size='15'>机器人尚未接入</font>", QMessageBox::Yes, QMessageBox::Yes);
         return;
     }
 
@@ -472,27 +508,26 @@ void MainWindow::on_start_pushButton_clicked()
 
     if(pin_index<=0)
     {
-        QMessageBox::information(this, u8"提醒", u8"起始pin脚序号非法", QMessageBox::Yes, QMessageBox::Yes);
+        QMessageBox::information(this, u8"提醒", u8"<font size='15'>起始pin脚序号非法</font>", QMessageBox::Yes, QMessageBox::Yes);
         ui->pin_index_lineEdit->setFocus();
         return;
     }
     DC.pin_index=pin_index;
 
 
-
-
-    QMessageBox::StandardButton rb =QMessageBox::information(this, u8"提醒", QString(u8"请确认：\n"
-                                                                                   "接触方式：%1\n"
-                                                                                   "触发方式：%2\n"
-                                                                                   "电压值:%3(千伏)\n"
-                                                                                   "间隔时间:%4(秒)\n"
-                                                                                   "重复次数:%5(次)")
-                                                             .arg(discharge_str)
-                                                             .arg(trigger_str)
-                                                             .arg(vol_str)
-                                                             .arg(interval_str)
-                                                             .arg(count_str)
-                                                             , QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+	QMessageBox::StandardButton rb = QMessageBox::information(this, u8"提醒", QString(u8"<p><font size='20' color='red'>请确认：	</font></p>"
+		"<p><font size='15'>接触方式：&emsp;%1</font></p>"
+		"<p><font size='15'>触发方式：&emsp;%2</font></p>"
+		"<p><font size='15'>电压值：&emsp;%3(千伏)</font></p>"
+		"<p><font size='15'>间隔时间：&emsp;%4(秒)</font></p>"
+		"<p><font size='15'>重复次数：&emsp;%5(次)")
+		.arg(discharge_str)
+		.arg(trigger_str)
+		.arg(vol_str)
+		.arg(interval_str)
+		.arg(count_str)
+		, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+	
 
     if(rb==QMessageBox::No)
     {
@@ -647,8 +682,8 @@ void MainWindow::on_reg_action_triggered()
         }
         else
         {
-            QMessageBox::information(this, u8"提醒", QString(u8"注册码：%1不合法\n"
-                                                           "请联系厂商").arg(reg_str), QMessageBox::Yes, QMessageBox::Yes);
+            QMessageBox::information(this, u8"提醒", QString(u8"<p><font size='15'>注册码：%1不合法</font></p>"
+                                                           "<font size='15'>请联系厂商</font>").arg(reg_str), QMessageBox::Yes, QMessageBox::Yes);
             return;
         }
     }

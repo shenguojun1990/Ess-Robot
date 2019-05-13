@@ -29,6 +29,8 @@ private:
 
     QSerialPort *serial;
 
+	bool emit_flag;//信号槽标志位，true时不执行
+
 signals:
     void com_opened();//成功打开串口
     void com_closed();//成功关闭串口
@@ -41,6 +43,8 @@ signals:
 
 	void to_next();//全部测试模式下，去下一个pin脚
 
+    void get_finished_count_start();//触发计时器，每1S获取一次已触发次数
+    void get_finished_count_stop();
 public slots:
     void receiveInfo();
 };

@@ -29,6 +29,8 @@ EssCom::EssCom()
 void EssCom::Com_Init()
 {
     serial = new QSerialPort;
+
+	emit_flag = false;
 }
 
 
@@ -73,6 +75,8 @@ void EssCom::receiveInfo()
     QByteArray hexData = info.toHex();
     qDebug()<<u8"串口接收数据:"<< hexData;
 
+	//QThread::msleep(10);
+
     if(hexData=="06")
     {
         //设置接触方式
@@ -115,20 +119,21 @@ void EssCom::receiveInfo()
         //开始
         if(DC.last_cmd==AA)
         {
-            sendData(AC);
+			QThread::msleep(2000);
+			sendData(AC);
             return;
         }
         //触发
         if(DC.last_cmd==AC)
         {
-            sendData(QF);
+            emit get_finished_count_start();
+
             return;
         }
 
         //停止
         if(DC.last_cmd==AB)
         {
-//            sendData(AC);
             return;
         }
         //松开
@@ -140,7 +145,9 @@ void EssCom::receiveInfo()
     }
 
     if(hexData.contains("024146"))
-    {
+    { 
+//		QThread::msleep(1000);
+		//emit_flag = true;
         int a=0;
         qDebug()<<tr(u8"查询已完成次数");
         int info_len=info.length();
@@ -175,12 +182,13 @@ void EssCom::receiveInfo()
                     emit to_next();
                 }
             }
-
+            emit get_finished_count_stop();
         }
         else
         {
-            sendData(QF);
+//            sendData(QF);
         }
+//		emit_flag = false;
     }
 }
 
@@ -436,7 +444,7 @@ void EssCom::sendData(ESS_CMD ess_cmd)
         //STX A A ETX BCC
         len=5;
         buf[0]=0x02;
-        buf[1]='A';
+        buf[1]='C';
         buf[2]='A';
         buf[3]=0x03;
         buf[4]=Fun_Bcc_Create(buf,len-1);
@@ -448,7 +456,7 @@ void EssCom::sendData(ESS_CMD ess_cmd)
         //STX A B ETX BCC
         len=5;
         buf[0]=0x02;
-        buf[1]='A';
+        buf[1]='C';
         buf[2]='B';
         buf[3]=0x03;
         buf[4]=Fun_Bcc_Create(buf,len-1);
@@ -466,7 +474,7 @@ void EssCom::sendData(ESS_CMD ess_cmd)
         //STX A C ETX BCC
         len=5;
         buf[0]=0x02;
-        buf[1]='A';
+        buf[1]='C';
         buf[2]='C';
         buf[3]=0x03;
         buf[4]=Fun_Bcc_Create(buf,len-1);
@@ -478,7 +486,7 @@ void EssCom::sendData(ESS_CMD ess_cmd)
         //STX A D ETX BCC
         len=5;
         buf[0]=0x02;
-        buf[1]='A';
+        buf[1]='C';
         buf[2]='D';
         buf[3]=0x03;
         buf[4]=Fun_Bcc_Create(buf,len-1);

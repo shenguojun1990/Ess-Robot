@@ -48,6 +48,9 @@ private slots:
 
     void robot_recv_slots(RECV_DATA);
 
+    void get_finished_count_start_slots();
+    void get_finished_count_stop_slots();
+
     void on_ess_setting_pushButton_clicked();
 
     void on_start_pushButton_clicked();
@@ -71,12 +74,16 @@ private slots:
 public slots:
     void update_UI();
 
+    void update_finished_count();
+
 private:
     Ui::MainWindow *ui;
     EssCom *m_essCom;
     TcpServer *m_TcpServer;
 
     QTimer *timer;
+
+    QTimer *get_finished_count_timer;////触发计时器，每1S获取一次已触发次数
 
 signals:
 	void ess_setting_unfinished();

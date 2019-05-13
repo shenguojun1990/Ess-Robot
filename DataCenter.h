@@ -24,6 +24,7 @@ enum ESS_CMD
     AB = 14,//实验停止
     AC = 15,//trigger设定命令
     AD = 16,//trigger放开命令
+	QE = 17,//剩余放电时间
 };
 
 enum PROLARITY
