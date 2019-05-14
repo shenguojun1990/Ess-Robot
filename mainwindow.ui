@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>903</width>
-    <height>1000</height>
+    <height>741</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,15 +17,15 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>60</x>
-      <y>20</y>
-      <width>721</width>
+      <x>190</x>
+      <y>0</y>
+      <width>441</width>
       <height>61</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <pointsize>50</pointsize>
+      <pointsize>30</pointsize>
       <weight>75</weight>
       <bold>true</bold>
      </font>
@@ -38,9 +38,9 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>110</y>
+      <y>50</y>
       <width>861</width>
-      <height>831</height>
+      <height>651</height>
      </rect>
     </property>
     <property name="font">
@@ -311,9 +311,9 @@
       <property name="geometry">
        <rect>
         <x>80</x>
-        <y>750</y>
-        <width>231</width>
-        <height>81</height>
+        <y>570</y>
+        <width>171</width>
+        <height>51</height>
        </rect>
       </property>
       <property name="text">
@@ -326,7 +326,7 @@
         <x>530</x>
         <y>10</y>
         <width>311</width>
-        <height>661</height>
+        <height>461</height>
        </rect>
       </property>
       <property name="title">
@@ -335,8 +335,8 @@
       <widget class="QLabel" name="tcp_server_connect_status_label">
        <property name="geometry">
         <rect>
-         <x>30</x>
-         <y>230</y>
+         <x>20</x>
+         <y>150</y>
          <width>231</width>
          <height>51</height>
         </rect>
@@ -363,7 +363,7 @@ color: rgb(255, 0, 0);</string>
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>60</y>
+         <y>30</y>
          <width>261</width>
          <height>41</height>
         </rect>
@@ -376,7 +376,7 @@ color: rgb(255, 0, 0);</string>
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>120</y>
+         <y>70</y>
          <width>231</width>
          <height>51</height>
         </rect>
@@ -403,9 +403,9 @@ color: rgb(255, 0, 0);</string>
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>170</y>
+         <y>120</y>
          <width>201</width>
-         <height>51</height>
+         <height>31</height>
         </rect>
        </property>
        <property name="text">
@@ -415,8 +415,8 @@ color: rgb(255, 0, 0);</string>
       <widget class="QLabel" name="limit_day_label">
        <property name="geometry">
         <rect>
-         <x>30</x>
-         <y>600</y>
+         <x>20</x>
+         <y>390</y>
          <width>161</width>
          <height>51</height>
         </rect>
@@ -429,9 +429,9 @@ color: rgb(255, 0, 0);</string>
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>540</y>
+         <y>360</y>
          <width>161</width>
-         <height>51</height>
+         <height>31</height>
         </rect>
        </property>
        <property name="text">
@@ -442,9 +442,9 @@ color: rgb(255, 0, 0);</string>
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>290</y>
+         <y>200</y>
          <width>201</width>
-         <height>51</height>
+         <height>31</height>
         </rect>
        </property>
        <property name="text">
@@ -454,8 +454,8 @@ color: rgb(255, 0, 0);</string>
       <widget class="QLabel" name="com_open_status_label">
        <property name="geometry">
         <rect>
-         <x>30</x>
-         <y>350</y>
+         <x>20</x>
+         <y>230</y>
          <width>231</width>
          <height>51</height>
         </rect>
@@ -482,9 +482,9 @@ color: rgb(255, 0, 0);</string>
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>410</y>
+         <y>280</y>
          <width>201</width>
-         <height>51</height>
+         <height>31</height>
         </rect>
        </property>
        <property name="text">
@@ -494,8 +494,8 @@ color: rgb(255, 0, 0);</string>
       <widget class="QLabel" name="tcp_server_listen_status_label">
        <property name="geometry">
         <rect>
-         <x>30</x>
-         <y>470</y>
+         <x>20</x>
+         <y>310</y>
          <width>231</width>
          <height>51</height>
         </rect>
@@ -523,9 +523,9 @@ color: rgb(255, 0, 0);</string>
       <property name="geometry">
        <rect>
         <x>530</x>
-        <y>750</y>
-        <width>231</width>
-        <height>81</height>
+        <y>570</y>
+        <width>171</width>
+        <height>51</height>
        </rect>
       </property>
       <property name="text">
@@ -535,10 +535,10 @@ color: rgb(255, 0, 0);</string>
      <widget class="QPushButton" name="ess_setting_pushButton">
       <property name="geometry">
        <rect>
-        <x>70</x>
-        <y>570</y>
-        <width>231</width>
-        <height>61</height>
+        <x>530</x>
+        <y>490</y>
+        <width>171</width>
+        <height>51</height>
        </rect>
       </property>
       <property name="font">
@@ -645,8 +645,8 @@ color: rgb(255, 0, 0);</string>
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>411</width>
-        <height>301</height>
+        <width>441</width>
+        <height>261</height>
        </rect>
       </property>
       <property name="title">
@@ -656,7 +656,7 @@ color: rgb(255, 0, 0);</string>
        <property name="geometry">
         <rect>
          <x>30</x>
-         <y>130</y>
+         <y>110</y>
          <width>121</width>
          <height>51</height>
         </rect>
@@ -669,8 +669,8 @@ color: rgb(255, 0, 0);</string>
        <property name="geometry">
         <rect>
          <x>170</x>
-         <y>130</y>
-         <width>231</width>
+         <y>110</y>
+         <width>261</width>
          <height>41</height>
         </rect>
        </property>
@@ -681,10 +681,10 @@ color: rgb(255, 0, 0);</string>
       <widget class="QPushButton" name="tcpServer_listen_pushButton">
        <property name="geometry">
         <rect>
-         <x>40</x>
-         <y>200</y>
-         <width>301</width>
-         <height>71</height>
+         <x>170</x>
+         <y>170</y>
+         <width>161</width>
+         <height>51</height>
         </rect>
        </property>
        <property name="text">
@@ -709,7 +709,7 @@ color: rgb(255, 0, 0);</string>
         <rect>
          <x>170</x>
          <y>60</y>
-         <width>231</width>
+         <width>261</width>
          <height>41</height>
         </rect>
        </property>
@@ -721,7 +721,7 @@ color: rgb(255, 0, 0);</string>
         <x>460</x>
         <y>10</y>
         <width>361</width>
-        <height>671</height>
+        <height>481</height>
        </rect>
       </property>
       <property name="title">
@@ -731,7 +731,7 @@ color: rgb(255, 0, 0);</string>
        <property name="geometry">
         <rect>
          <x>170</x>
-         <y>220</y>
+         <y>190</y>
          <width>151</width>
          <height>51</height>
         </rect>
@@ -746,7 +746,7 @@ color: rgb(255, 0, 0);</string>
        <property name="geometry">
         <rect>
          <x>170</x>
-         <y>139</y>
+         <y>120</y>
          <width>151</width>
          <height>51</height>
         </rect>
@@ -776,7 +776,7 @@ color: rgb(255, 0, 0);</string>
        <property name="geometry">
         <rect>
          <x>40</x>
-         <y>320</y>
+         <y>260</y>
          <width>101</width>
          <height>61</height>
         </rect>
@@ -794,7 +794,7 @@ color: rgb(255, 0, 0);</string>
        <property name="geometry">
         <rect>
          <x>40</x>
-         <y>130</y>
+         <y>111</y>
          <width>101</width>
          <height>61</height>
         </rect>
@@ -812,7 +812,7 @@ color: rgb(255, 0, 0);</string>
        <property name="geometry">
         <rect>
          <x>170</x>
-         <y>320</y>
+         <y>260</y>
          <width>151</width>
          <height>51</height>
         </rect>
@@ -827,7 +827,7 @@ color: rgb(255, 0, 0);</string>
        <property name="geometry">
         <rect>
          <x>40</x>
-         <y>220</y>
+         <y>190</y>
          <width>101</width>
          <height>61</height>
         </rect>
@@ -863,7 +863,7 @@ color: rgb(255, 0, 0);</string>
        <property name="geometry">
         <rect>
          <x>40</x>
-         <y>410</y>
+         <y>330</y>
          <width>101</width>
          <height>61</height>
         </rect>
@@ -881,7 +881,7 @@ color: rgb(255, 0, 0);</string>
        <property name="geometry">
         <rect>
          <x>170</x>
-         <y>410</y>
+         <y>330</y>
          <width>151</width>
          <height>51</height>
         </rect>
@@ -895,10 +895,10 @@ color: rgb(255, 0, 0);</string>
       <widget class="QPushButton" name="openCom_pushButton_2">
        <property name="geometry">
         <rect>
-         <x>40</x>
-         <y>520</y>
-         <width>251</width>
-         <height>81</height>
+         <x>120</x>
+         <y>410</y>
+         <width>161</width>
+         <height>51</height>
         </rect>
        </property>
        <property name="font">
@@ -914,10 +914,10 @@ color: rgb(255, 0, 0);</string>
      <widget class="QPushButton" name="back_pushButton">
       <property name="geometry">
        <rect>
-        <x>300</x>
-        <y>700</y>
-        <width>241</width>
-        <height>71</height>
+        <x>380</x>
+        <y>510</y>
+        <width>161</width>
+        <height>51</height>
        </rect>
       </property>
       <property name="text">
@@ -928,9 +928,9 @@ color: rgb(255, 0, 0);</string>
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>320</y>
-        <width>301</width>
-        <height>351</height>
+        <y>280</y>
+        <width>441</width>
+        <height>211</height>
        </rect>
       </property>
       <property name="font">
@@ -957,9 +957,9 @@ color: rgb(255, 0, 0);</string>
       <widget class="QLabel" name="com_open_status_label_2">
        <property name="geometry">
         <rect>
-         <x>30</x>
-         <y>90</y>
-         <width>231</width>
+         <x>230</x>
+         <y>30</y>
+         <width>181</width>
          <height>51</height>
         </rect>
        </property>
@@ -985,7 +985,7 @@ color: rgb(255, 0, 0);</string>
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>150</y>
+         <y>100</y>
          <width>201</width>
          <height>51</height>
         </rect>
@@ -997,9 +997,9 @@ color: rgb(255, 0, 0);</string>
       <widget class="QLabel" name="tcp_server_listen_status_label_2">
        <property name="geometry">
         <rect>
-         <x>30</x>
-         <y>210</y>
-         <width>231</width>
+         <x>230</x>
+         <y>100</y>
+         <width>181</width>
          <height>51</height>
         </rect>
        </property>

@@ -63815,3 +63815,16 @@
 (2019-05-13 15:03:33 周一) 	 串口发送 "\u0002QF\u0003\u0014"
 (2019-05-13 15:03:33 周一) 	 串口接收数据: "064146320336"
 (2019-05-13 15:03:33 周一) 	 串口发送 "\u0002CD\u0003\u0004"
+(2019-05-14 09:29:34 周二) 	 softdog_login: 7
+(2019-05-14 09:29:34 周二) 	 read_dog: 9
+(2019-05-14 09:29:34 周二) 	 No Dog
+(2019-05-14 09:29:46 周二) 	 softdog_login: 0
+(2019-05-14 09:29:46 周二) 	 read_dog: 0
+(2019-05-14 09:29:48 周二) 	 QMetaObject::connectSlotsByName: No matching signal for on_comboBox_activated(QString)
+(2019-05-14 09:29:48 周二) 	 本机ip: "192.168.1.110"
+(2019-05-14 09:29:48 周二) 	 softdog_login: 0
+(2019-05-14 09:30:21 周二) 	 softdog_login: 0
+(2019-05-14 09:30:21 周二) 	 read_dog: 0
+(2019-05-14 09:30:22 周二) 	 QMetaObject::connectSlotsByName: No matching signal for on_comboBox_activated(QString)
+(2019-05-14 09:30:22 周二) 	 本机ip: "192.168.1.110"
+(2019-05-14 09:30:22 周二) 	 softdog_login: 0

@@ -249,9 +249,14 @@ void MainWindow::ess_finished_slots()
 		ui->pin_index_lineEdit->setText("1");
 	}
 
-    QMessageBox::information(this, u8"提醒", u8"<p><font size='15'>本次测试完成</font></p>"
+    QMessageBox::StandardButton rb = QMessageBox::information(this, u8"提醒", u8"<p><font size='15'>本次测试完成</font></p>"
                                            "<p><font size='15'>请重新设置参数</font></p>",
                              QMessageBox::Yes, QMessageBox::Yes);
+    if(rb==QMessageBox::Yes)
+    {
+       m_TcpServer->sendData("Go,Home");
+    }
+
     return;
 }
 
