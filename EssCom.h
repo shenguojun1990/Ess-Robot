@@ -37,7 +37,7 @@ signals:
     void ess_setting_finished();//UI静电枪参数已写入
     void ess_setting_unfinished();//UI静电枪参数未写入
 
-    void completed_count();//回传静电枪测试完成次数
+    void completed_count();//主窗口顯示静电枪测试完成次数
 
     void ess_finished();//测试完成
 
@@ -45,6 +45,9 @@ signals:
 
     void get_finished_count_start();//触发计时器，每1S获取一次已触发次数
     void get_finished_count_stop();
+
+    void airmode_go_down();//空气接触模式下，走到测试下位点
+
 public slots:
     void receiveInfo();
 };

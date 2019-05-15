@@ -39,7 +39,7 @@ public slots:
 signals:
     void tcp_server_close();
 
-    void robot_recv(RECV_DATA	data);
+    void robot_recv(RECV_DATA	data,DISCHARGE discharge);
 
 };
 

@@ -94,25 +94,55 @@ void TcpServer::doProcessReadyRead()
         qDebug()<<u8"机器人接收数据："<<str;
     }
 
-    if(str.compare("inpos", Qt::CaseInsensitive)==0)
+    //if(DC.discharge==Contect)//直接接触时，机器人直接走到接触点，连续触发n次
     {
-        qDebug()<<u8"机器人到位";
-		recv_data = InPos;
+        if(str.compare("inpos", Qt::CaseInsensitive)==0)
+        {
+            qDebug()<<u8"直接接触，机器人到位";
+            recv_data = InPos;
+        }
+
+        if(str.compare("inpos,1", Qt::CaseInsensitive)==0)
+        {
+            qDebug()<<u8"空气接触，机器人到上位";
+            recv_data = InPos1;
+        }
+
+        if(str.compare("inpos,2", Qt::CaseInsensitive)==0)
+        {
+            qDebug()<<u8"空气接触，机器人到上位";
+            recv_data = InPos2;
+        }
+
+        if(str.compare("complete", Qt::CaseInsensitive)==0)
+        {
+            qDebug()<<u8"所有pin脚测试完成";
+            recv_data = Complete;
+        }
+
+        if(str.compare("complete,1", Qt::CaseInsensitive)==0)
+        {
+            qDebug()<<u8"所有pin脚测试完成";
+            recv_data = Complete1;
+        }
+
+        if(str.compare("complete,2", Qt::CaseInsensitive)==0)
+        {
+            qDebug()<<u8"所有pin脚测试完成";
+            recv_data = Complete2;
+        }
+
+
+        if (str.compare("recv", Qt::CaseInsensitive) == 0)
+        {
+            qDebug() << u8"机器人收到信息";
+            recv_data = Recv;
+        }
+
+        emit robot_recv(recv_data,DC.discharge);
     }
 
-    if(str.compare("complete", Qt::CaseInsensitive)==0)
-    {
-        qDebug()<<u8"所有pin脚测试完成";
-		recv_data = Complete;
-    }
 
-	if (str.compare("recv", Qt::CaseInsensitive) == 0)
-	{
-		qDebug() << u8"机器人收到信息";
-		recv_data = Recv;
-	}
-
-	emit robot_recv(recv_data);
 
 }
 void TcpServer::doProcessConnected()

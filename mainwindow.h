@@ -44,12 +44,16 @@ private slots:
 
 	void to_next_slots();
 
+    void airmode_next_slots();
+
     void tcp_server_close_slots();
 
-    void robot_recv_slots(RECV_DATA);
+    void robot_recv_slots(RECV_DATA, DISCHARGE discharge);
 
     void get_finished_count_start_slots();
     void get_finished_count_stop_slots();
+
+    void airmode_go_down_slots();
 
     void on_ess_setting_pushButton_clicked();
 
@@ -76,6 +80,10 @@ public slots:
 
     void update_finished_count();
 
+	void airmode_to_next();
+
+	void airmode_trig_stop();
+
 private:
     Ui::MainWindow *ui;
     EssCom *m_essCom;
@@ -85,6 +93,9 @@ private:
 
     QTimer *get_finished_count_timer;////触发计时器，每1S获取一次已触发次数
 
+    QTimer *airmode_hold_timer;//空气模式下，到达下位时，等1s后往下一个点走
+
+	QTimer *airmode_trig_timer;//空气模式下，触发静电枪，1s后关掉静电枪
 signals:
 	void ess_setting_unfinished();
 	void ess_finished();

@@ -30,16 +30,13 @@ void EssCom::Com_Init()
 {
     serial = new QSerialPort;
 
-	emit_flag = false;
+    emit_flag = false;
 }
 
 
 void EssCom::Get_Com_List()//查找可用的串口
 {
-    //    for(int i=0;i<DC.serialPortInfo.size();i++)
-    //    {
-    //        qDebug() << "Name : " << DC.serialPortInfo.at(i).portName();
-    //    }
+    return;
 }
 
 void EssCom::Com_Open(QString portName)//com连接
@@ -75,68 +72,81 @@ void EssCom::receiveInfo()
     QByteArray hexData = info.toHex();
     qDebug()<<u8"串口接收数据:"<< hexData;
 
-	//QThread::msleep(10);
+    //QThread::msleep(10);
+
 
     if(hexData=="06")
     {
-        //设置接触方式
+        //上一个命令为：设置接触方式
         if(DC.last_cmd==PH)
         {
             sendData(PJ);
             return;
         }
-        //设置触发方式
+        //上一个命令为：设置触发方式
         if(DC.last_cmd==PJ)
         {
             sendData(PG);
             return;
         }
-        //设置电压正负
+        //上一个命令为：设置电压正负
         if(DC.last_cmd==PG)
         {
             sendData(PL);
             return;
         }
-        //设置电压值
+        //上一个命令为：设置电压值
         if(DC.last_cmd==PL)
         {
             sendData(PK);
             return;
         }
-        //设置间隔时间
+        //上一个命令为：设置间隔时间
         if(DC.last_cmd==PK)
         {
             sendData(PI);
             return;
         }
-        //设置次数
+        //上一个命令为：设置次数
         if(DC.last_cmd==PI)
         {
-//            sendData(PG);
+            //            sendData(PG);
             emit ess_setting_finished();
             return;
         }
-        //开始
+        //上一个命令为：开始
         if(DC.last_cmd==AA)
         {
-			QThread::msleep(2000);
-			sendData(AC);
+            QThread::msleep(2000);
+            sendData(AC);
+			if (DC.discharge==Air) 
+			{
+				DC.completed_count = DC.completed_count + 1;
+
+				emit completed_count();
+			}
             return;
         }
-        //触发
+        //上一个命令为：触发
         if(DC.last_cmd==AC)
         {
             emit get_finished_count_start();
 
+            if(DC.discharge==Air)
+            {
+                emit airmode_go_down();
+            }
+
             return;
         }
 
-        //停止
+        //上一个命令为：停止
         if(DC.last_cmd==AB)
         {
+            emit get_finished_count_stop();
             return;
         }
-        //松开
+        //上一个命令为：松开
         if(DC.last_cmd==AD)
         {
             sendData(AB);
@@ -144,52 +154,69 @@ void EssCom::receiveInfo()
         }
     }
 
-    if(hexData.contains("024146"))
-    { 
-//		QThread::msleep(1000);
-		//emit_flag = true;
-        int a=0;
-        qDebug()<<tr(u8"查询已完成次数");
-        int info_len=info.length();
-        char *ch=info.data();
-        for(int i=3;i<info_len-2;i++)
+    if(DC.discharge==Contect)
+    {
+        if(hexData.contains("024146"))
         {
-            a=a*10;
-            QString str_ascii = QString(ch[i]);
-            int str_int = str_ascii.toInt();
-            a=a+str_int;
+            int a=0;
+            qDebug()<<tr(u8"查询已完成次数");
+            int info_len=info.length();
+            char *ch=info.data();
+            for(int i=3;i<info_len-2;i++)
+            {
+                a=a*10;
+                QString str_ascii = QString(ch[i]);
+                int str_int = str_ascii.toInt();
+                a=a+str_int;
 
-        }
-        DC.completed_count=a;
-        emit completed_count();
-        if(a==DC.repeat_count)
-        {
-            sendData(AD);
-            if (DC.test_mode==One_Step)
-            {
-                //emit ess_finished();
-                //emit ess_setting_unfinished();
             }
-            else if (DC.test_mode == ALL)
+            DC.completed_count=a;
+            emit completed_count();
+            if(a==DC.repeat_count)
             {
-                if(DC.loop_finished_flag)
+                sendData(AD);
+                if (DC.test_mode==One_Step)
                 {
-                    emit ess_finished();
-                    emit ess_setting_unfinished();
+                    //emit ess_finished();
+                    //emit ess_setting_unfinished();
                 }
-                else
+                else if (DC.test_mode == ALL)
                 {
-                    emit to_next();
+                    if(DC.loop_finished_flag)
+                    {
+                        emit ess_finished();
+                        emit ess_setting_unfinished();
+                    }
+                    else
+                    {
+                        emit to_next();
+                    }
                 }
+                emit get_finished_count_stop();
             }
-            emit get_finished_count_stop();
         }
-        else
-        {
-//            sendData(QF);
-        }
-//		emit_flag = false;
     }
+    else
+    {
+        /*if(hexData.contains("024146"))
+        {
+            int a=0;
+            qDebug()<<tr(u8"查询已完成次数");
+            int info_len=info.length();
+            char *ch=info.data();
+            for(int i=3;i<info_len-2;i++)
+            {
+                a=a*10;
+                QString str_ascii = QString(ch[i]);
+                int str_int = str_ascii.toInt();
+                a=a+str_int;
+
+            }
+            DC.completed_count=a;
+            emit completed_count();
+        }*/
+    }
+
 }
 
 

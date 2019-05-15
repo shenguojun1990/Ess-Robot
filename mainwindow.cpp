@@ -6,6 +6,7 @@
 #include <QDateTime>
 #include <QInputDialog>
 #include <QSettings>
+#include <qthread.h>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -34,9 +35,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_essCom, SIGNAL(to_next()), this, SLOT(to_next_slots()));
     connect(m_essCom, SIGNAL(get_finished_count_start()), this, SLOT(get_finished_count_start_slots()));
     connect(m_essCom, SIGNAL(get_finished_count_stop()), this, SLOT(get_finished_count_stop_slots()));
+    connect(m_essCom, SIGNAL(airmode_go_down()), this, SLOT(airmode_go_down_slots()));
 
     connect(m_TcpServer, SIGNAL(tcp_server_close()), this, SLOT(tcp_server_close_slots()));
-    connect(m_TcpServer, SIGNAL(robot_recv(RECV_DATA)), this, SLOT(robot_recv_slots(RECV_DATA)));
+    connect(m_TcpServer, SIGNAL(robot_recv(RECV_DATA,DISCHARGE)), this, SLOT(robot_recv_slots(RECV_DATA,DISCHARGE)));
 
     connect(this, SIGNAL(ess_finished()), this, SLOT(ess_finished_slots()));
     connect(this, SIGNAL(ess_setting_unfinished()), this, SLOT(ess_setting_unfinished_slots()));
@@ -49,6 +51,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     get_finished_count_timer = new QTimer(this);
     connect(get_finished_count_timer, SIGNAL(timeout()), this, SLOT(update_finished_count()));
+
+    airmode_hold_timer = new QTimer(this);
+    connect(airmode_hold_timer, SIGNAL(timeout()), this, SLOT(airmode_to_next()));
+
+	airmode_trig_timer = new QTimer(this);
+	connect(airmode_trig_timer, SIGNAL(timeout()), this, SLOT(airmode_trig_stop()));
 
     on_tcpServer_listen_pushButton_clicked();
     on_openCom_pushButton_2_clicked();
@@ -80,6 +88,31 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::update_finished_count()
 {
     m_essCom->sendData(QF);
+}
+
+void MainWindow::airmode_to_next()
+{
+	DC.pin_index++;
+
+	ui->pin_index_lineEdit->setText(QString::number(DC.pin_index));
+
+	QString msg = "Go,";
+	msg.append(QString::number(DC.pin_index));
+	if (DC.discharge == Air)//空气接触时，先走到测试点的尚未
+	{
+		msg.append(",1");
+	}
+	m_TcpServer->sendData(msg);
+
+	airmode_hold_timer->stop();
+
+	return;
+}
+
+void MainWindow::airmode_trig_stop() 
+{
+	m_essCom->sendData(AB);
+	airmode_trig_timer->stop();
 }
 
 
@@ -227,11 +260,16 @@ void MainWindow::ess_setting_unfinished_slots()
 
 void MainWindow::completed_count_slots()
 {
-	if (DC.completed_count==0)
-	{
-		return;
-	}
+    int last_count=ui->completed_label->text().toInt();//前一次已完成次数
+    if (DC.completed_count==0)
+    {
+        return;
+    }
     ui->completed_label->setText(QString::number(DC.completed_count));
+    if(DC.discharge==Air&&last_count<DC.completed_count)
+    {
+        get_finished_count_timer->stop();
+    }
 }
 
 void MainWindow::ess_finished_slots()
@@ -244,17 +282,17 @@ void MainWindow::ess_finished_slots()
         ui->pin_index_lineEdit->setText(QString::number(pin_index));
     }
 
-	if (DC.test_mode == ALL)
-	{
-		ui->pin_index_lineEdit->setText("1");
-	}
+    if (DC.test_mode == ALL)
+    {
+        ui->pin_index_lineEdit->setText("1");
+    }
 
     QMessageBox::StandardButton rb = QMessageBox::information(this, u8"提醒", u8"<p><font size='15'>本次测试完成</font></p>"
-                                           "<p><font size='15'>请重新设置参数</font></p>",
-                             QMessageBox::Yes, QMessageBox::Yes);
+                                                                            "<p><font size='15'>请重新设置参数</font></p>",
+                                                              QMessageBox::Yes, QMessageBox::Yes);
     if(rb==QMessageBox::Yes)
     {
-       m_TcpServer->sendData("Go,Home");
+        m_TcpServer->sendData("Go,0");
     }
 
     return;
@@ -268,7 +306,32 @@ void MainWindow::to_next_slots()
 
     QString msg = "Go,";
     msg.append(QString::number(DC.pin_index));
+    if(DC.discharge==Air)//空气接触时，先走到测试点的尚未
+    {
+        msg.append(",1");
+    }
     m_TcpServer->sendData(msg);
+
+    return;
+}
+
+void MainWindow::airmode_next_slots()
+{
+    DC.pin_index++;
+
+    ui->pin_index_lineEdit->setText(QString::number(DC.pin_index));
+
+    QString msg = "Go,";
+    msg.append(QString::number(DC.pin_index));
+    if(DC.discharge==Air)//空气接触时，先走到测试点的尚未
+    {
+        msg.append(",1");
+    }
+    m_TcpServer->sendData(msg);
+
+    airmode_hold_timer->stop();
+
+	m_essCom->sendData(AB);
 
     return;
 }
@@ -278,28 +341,67 @@ void MainWindow::tcp_server_close_slots()
     ui->tcpServer_listen_pushButton->setText(tr(u8"监听"));
 }
 
-void MainWindow::robot_recv_slots(RECV_DATA recv_data)
+void MainWindow::robot_recv_slots(RECV_DATA recv_data,DISCHARGE discharge)
 {
     //on_start_pushButton_clicked();
     switch (recv_data)
     {
     case Recv:
+    {
         ui->statusBar->showMessage(u8"机器人运动中，请注意安全！！！");
+    }
+
         break;
-    case InPos:
+    case InPos://直接接触时，机器人到位，触发静电枪工作
+    {
         ui->statusBar->showMessage(u8"机器人到位，静电枪开始工作，请注意安全！！！");
         m_essCom->sendData(AA);
+    }
         break;
-    case Complete:
+    case Complete://直接接触时，机器人到最后一个测试位，触发静电枪工作
+    {
         ui->statusBar->showMessage(u8"机器人到位，静电枪开始工作，请注意安全！！！");
         //on_stop_pushButton_clicked();
-		m_essCom->sendData(AA);
+        m_essCom->sendData(AA);
 
         if (DC.test_mode == ALL)
         {
             DC.loop_finished_flag=true;
         }
+    }
+        break;
 
+    case InPos1://空气接触时，机器人到上位，触发静电枪工作，然后往下位走
+    {
+        ui->statusBar->showMessage(u8"机器人到位，静电枪开始工作，请注意安全！！！");
+        m_essCom->sendData(AA);
+    }
+        break;
+
+    case InPos2://空气接触时，机器人到下位，悬停1s后，然后上抬，往下一个点走
+    {
+//        ui->statusBar->showMessage(u8"机器人到位，静电枪开始工作，请注意安全！！！");
+        airmode_hold_timer->start(1000);//等1s后，往下一个点走
+    }
+        break;
+
+    case Complete1://空气接触时，机器人到最后一个测试上位，触发静电枪工作
+    {
+        ui->statusBar->showMessage(u8"机器人到位，静电枪开始工作，请注意安全！！！");
+        //on_stop_pushButton_clicked();
+        m_essCom->sendData(AA);
+
+    }
+        break;
+
+    case Complete2://空气接触时，机器人到最后一个测试下位，停止工作
+    {
+//        ui->statusBar->showMessage(u8"机器人到位，静电枪开始工作，请注意安全！！！");
+//        //on_stop_pushButton_clicked();
+//        m_essCom->sendData(AA);
+        emit ess_finished();
+        emit ess_setting_unfinished();
+    }
         break;
     }
 }
@@ -312,6 +414,17 @@ void MainWindow::get_finished_count_start_slots()
 void MainWindow::get_finished_count_stop_slots()
 {
     get_finished_count_timer->stop();
+}
+
+void MainWindow::airmode_go_down_slots()
+{
+
+    QString msg = "Go,";
+    msg.append(QString::number(DC.pin_index));
+    msg.append(",2");
+    m_TcpServer->sendData(msg);
+
+	airmode_trig_timer->start(1000);
 }
 
 void MainWindow::on_ess_setting_pushButton_clicked()
@@ -345,12 +458,12 @@ void MainWindow::on_ess_setting_pushButton_clicked()
     //电压
     float vol=ui->voltage_lineEdit->text().toFloat();
     //    qDebug()<<"vol:"<<vol;
-	if (vol == 0)
-	{
-		QMessageBox::information(this, u8"提醒", u8"<p><font size='15'>电压非法</font></p>", QMessageBox::Yes, QMessageBox::Yes);
-		ui->interval_lineEdit->setFocus();
-		return;
-	}
+    if (vol == 0)
+    {
+        QMessageBox::information(this, u8"提醒", u8"<p><font size='15'>电压非法</font></p>", QMessageBox::Yes, QMessageBox::Yes);
+        ui->interval_lineEdit->setFocus();
+        return;
+    }
     DC.voltage=qAbs(vol);//电压值
     if(vol>=0)//电压值为正
     {
@@ -520,19 +633,19 @@ void MainWindow::on_start_pushButton_clicked()
     DC.pin_index=pin_index;
 
 
-	QMessageBox::StandardButton rb = QMessageBox::information(this, u8"提醒", QString(u8"<p><font size='20' color='red'>请确认：	</font></p>"
-		"<p><font size='15'>接触方式：&emsp;%1</font></p>"
-		"<p><font size='15'>触发方式：&emsp;%2</font></p>"
-		"<p><font size='15'>电压值：&emsp;%3(千伏)</font></p>"
-		"<p><font size='15'>间隔时间：&emsp;%4(秒)</font></p>"
-		"<p><font size='15'>重复次数：&emsp;%5(次)")
-		.arg(discharge_str)
-		.arg(trigger_str)
-		.arg(vol_str)
-		.arg(interval_str)
-		.arg(count_str)
-		, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-	
+    QMessageBox::StandardButton rb = QMessageBox::information(this, u8"提醒", QString(u8"<p><font size='20' color='red'>请确认：	</font></p>"
+                                                                                    "<p><font size='15'>接触方式：&emsp;%1</font></p>"
+                                                                                    "<p><font size='15'>触发方式：&emsp;%2</font></p>"
+                                                                                    "<p><font size='15'>电压值：&emsp;%3(千伏)</font></p>"
+                                                                                    "<p><font size='15'>间隔时间：&emsp;%4(秒)</font></p>"
+                                                                                    "<p><font size='15'>重复次数：&emsp;%5(次)")
+                                                              .arg(discharge_str)
+                                                              .arg(trigger_str)
+                                                              .arg(vol_str)
+                                                              .arg(interval_str)
+                                                              .arg(count_str)
+                                                              , QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+
 
     if(rb==QMessageBox::No)
     {
@@ -540,7 +653,7 @@ void MainWindow::on_start_pushButton_clicked()
     }
     else
     {
-//        m_essCom->sendData(AA);
+        //        m_essCom->sendData(AA);
         set_ui(false);
 
         if (DC.test_mode == ALL)
@@ -549,8 +662,19 @@ void MainWindow::on_start_pushButton_clicked()
         }
 
         QString msg="Go,";
+
         msg.append(QString::number(DC.pin_index));
+
+        if(DC.discharge==Air)//空气接触时，先走到测试点的尚未
+        {
+            msg.append(",1");
+        }
+
         m_TcpServer->sendData(msg);
+
+		DC.completed_count = 0;
+
+		ui->completed_label->setText(QString::number(DC.completed_count));
     }
 
 }
@@ -570,7 +694,15 @@ void MainWindow::set_ui(bool status)
 void MainWindow::on_stop_pushButton_clicked()
 {
     set_ui(true);
-    m_essCom->sendData(AD);
+    m_essCom->sendData(AB);
+    m_TcpServer->sendData("Go,0");
+
+	DC.completed_count = 0;
+	ui->completed_label->setText(QString::number(DC.completed_count));
+
+	DC.pin_index = 1;
+	ui->pin_index_lineEdit->setText(QString::number(DC.pin_index));
+
 }
 
 void MainWindow::on_tcpServer_listen_pushButton_clicked()
