@@ -5,6 +5,8 @@
 *.sln
 *.vcxproj
 *.filters
+*.txt
+*.ini
 ui_*
 *.stash
 *.dll
